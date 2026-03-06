@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+// go_package : chemin où protoc va écrire les fichiers .go générés
+option go_package = "github.com/dacostaabraham/cv-generator/proto";
+package cv;
+
+// ════════════════════════════════════════════════════════
+// MESSAGES — les structures de données
+// ════════════════════════════════════════════════════════
+
+// Experience = un poste professionnel
+message Experience {
+  string company=1;
+  string position=2;
+  string start_date=3; // Ex: "Jan 2020"
+  string end_date=4;   // Ex: "Present" ou "Dec 2023"
+  string description=5;
+}
+
+// Education = un diplôme ou une formation
+message Education {
+  string school = 1;
+  string degree = 2;
+  int32  year   = 3;
+}
+
+// CVRequest = ce que le client envoie au serveur
+message CVRequest {
+  string              full_name   = 1;
+  string              email       = 2;
+  string              phone       = 3;
+  string              location    = 4;
+  string              summary     = 5;
+  repeated string     skills      = 6; // []string en Go
+  repeated Experience experiences = 7; // []Experience en Go
+  repeated Education  education   = 8;
+  string              template    = 9; // "classic" ou "modern"
+}
+
+// CVResponse = ce que le serveur retourne au client
+message CVResponse {
+  bool   success    = 1;
+  bytes  pdf_data   = 2; // Le PDF en binaire ([]byte en Go)
+  string filename   = 3; // Ex: "abraham-kouassi-cv.pdf"
+  string error_msg  = 4; // Message d'erreur si success = false
+}
+
+// ProgressEvent = un événement de progression (pour le streaming)
+message ProgressEvent {
+  string step        = 1; // Ex: "Génération du PDF..."
+  int32  percent     = 2; // 0 à 100
+  bool   done        = 3; // true = terminé
+  bytes  pdf_data    = 4; // Rempli uniquement quand done = true
+}
+
+// ════════════════════════════════════════════════════════
+// SERVICE — les méthodes disponibles
+// ════════════════════════════════════════════════════════
+
+service CVGenerator {
+
+  // GenerateCV : Unary — 1 requête → 1 réponse avec le PDF complet
+  rpc GenerateCV (CVRequest) returns (CVResponse);
+
+  // StreamProgress : Server Streaming — 1 requête → N événements de progression
+  // Le client reçoit des updates en temps réel pendant la génération
+  rpc StreamProgress (CVRequest) returns (stream ProgressEvent);
+}
