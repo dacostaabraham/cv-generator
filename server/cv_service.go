@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	pdfgen "github.com/dacostaabraham/cv-generator.git/internal/pdf" // AJOUTER
 	pb "github.com/dacostaabraham/cv-generator.git/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -78,7 +79,13 @@ func (s *CVService) GenerateCV(
 	// 5. Generer le PDF
 	// Pour l'instant: PDF factice avec les donnees du CV
 	// A l'etape 4 on remplacera par la vraie generation gofpdf
-	pdfData := generateMockPDF(req, tmpl)
+	pdfData, err := pdfgen.Generate(req)
+	if err != nil {
+		return &pb.CVResponse{
+			Success:  false,
+			ErrorMsg: fmt.Sprintf("erreur generation PDF: %v", err),
+		}, nil
+	}
 
 	// 6. Construire et retourner la reponse
 	return &pb.CVResponse{
@@ -147,7 +154,10 @@ func (s *CVService) StreamProgress(
 	}
 
 	// 4. Generer le PDF final
-	pdfData := generateMockPDF(req, req.Template)
+	pdfData, err := pdfgen.Generate(req)
+	if err != nil {
+		return status.Errorf(codes.Internal, "erreur PDF: %v", err)
+	}
 
 	// 5. Envoyer l'evenement final avec le PDF
 	return stream.Send(&pb.ProgressEvent{

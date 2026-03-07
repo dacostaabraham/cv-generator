@@ -34,7 +34,9 @@ message CVRequest {
   repeated string     skills      = 6; // []string en Go
   repeated Experience experiences = 7; // []Experience en Go
   repeated Education  education   = 8;
-  string              template    = 9; // "classic" ou "modern"
+  string              template    = 9;
+  bytes              photo       = 10;
+   // "classic" obytes  photo u "modern"
 }
 
 // CVResponse = ce que le serveur retourne au client

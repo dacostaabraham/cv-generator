@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV Generator — FAKODROP</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: system-ui, sans-serif;
+  background: #f0f4f8;
+  color: #1a202c;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+.container { max-width: 720px; margin: 0 auto; }
+h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1c3678;
+  margin-bottom: 6px;
+}
+.subtitle { color: #718096; font-size: 14px; margin-bottom: 32px; }
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.card h2 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #1c3678;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e8f0fa;
+}
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.field input, .field textarea, .field select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a202c;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none;
+  border-color: #1c3678;
+}
+.field textarea { min-height: 80px; resize: vertical; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Experiences dynamiques */
+.exp-item {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.exp-item .remove-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #fed7d7;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #e53e3e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-btn {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px dashed #bee3f8;
+  border-radius: 8px;
+  background: transparent;
+  color: #1c3678;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.add-btn:hover { background: #ebf8ff; }
+
+/* Photo upload */
+.photo-zone {
+  border: 2px dashed #bee3f8;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.photo-zone:hover { background: #ebf8ff; }
+.photo-zone input { display: none; }
+.photo-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: none; }
+
+/* Template selector */
+.template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.template-opt {
+  padding: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.template-opt:hover { border-color: #1c3678; }
+.template-opt.selected { border-color: #1c3678; background: #e8f0fa; }
+.template-opt .t-name { font-weight: 700; font-size: 13px; color: #1c3678; }
+.template-opt .t-desc { font-size: 11px; color: #718096; margin-top: 3px; }
+
+/* Progress */
+.progress-card { display: none; }
+.progress-card.visible { display: block; }
+.step-label {
+  font-size: 14px;
+  color: #4a5568;
+  margin-bottom: 10px;
+  min-height: 20px;
+}
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1c3678, #4a7cd4);
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+.progress-pct {
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1c3678;
+  margin-top: 6px;
+}
+
+/* Bouton generer */
+.generate-btn {
+  width: 100%;
+  padding: 16px;
+  background: #1c3678;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+.generate-btn:hover { background: #2d4fa0; transform: translateY(-1px); }
+.generate-btn:disabled { background: #a0aec0; cursor: not-allowed; transform: none; }
+
+/* Success */
+.success-card { display:none; text-align:center; }
+.success-card.visible { display: block; }
+.download-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  background: #38a169;
+  color: white;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  margin-top: 12px;
+  cursor: pointer;
+  border: none;
+}
+
+@media(max-width:600px){
+  .grid2{grid-template-columns:1fr;}
+  .template-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>CV Generator</h1>
+  <p class="subtitle">Remplis le formulaire et telecharge ton CV professionnel en PDF.</p>
+
+  <!-- Infos personnelles -->
+  <div class="card">
+    <h2>Informations personnelles</h2>
+    <div class="grid2">
+      <div class="field">
+        <label>Nom complet *</label>
+        <input id="fullName" type="text" placeholder="Abraham Kouassi">
+      </div>
+      <div class="field">
+        <label>Email *</label>
+        <input id="email" type="email" placeholder="abraham@fakodrop.ci">
+      </div>
+      <div class="field">
+        <label>Telephone</label>
+        <input id="phone" type="text" placeholder="+225 07 00 00 00">
+      </div>
+      <div class="field">
+        <label>Ville / Localisation</label>
+        <input id="location" type="text" placeholder="Abidjan, Cote d'Ivoire">
+      </div>
+    </div>
+    <div class="field">
+      <label>Profil / Resumé</label>
+      <textarea id="summary" placeholder="Decris-toi en quelques phrases..."></textarea>
+    </div>
+    <div class="field">
+      <label>Photo (optionnel)</label>
+      <div class="photo-zone" onclick="document.getElementById('photoInput').click()">
+        <img id="photoPreview" class="photo-preview">
+        <div id="photoText">Clique pour ajouter une photo</div>
+        <input id="photoInput" type="file" accept="image/*" onchange="handlePhoto(this)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Competences -->
+  <div class="card">
+    <h2>Competences</h2>
+    <div class="field">
+      <label>Skills (separees par des virgules)</label>
+      <input id="skills" type="text" placeholder="Go, gRPC, Flutter, PHP, MySQL">
+    </div>
+  </div>
+
+  <!-- Experiences -->
+  <div class="card">
+    <h2>Experiences professionnelles</h2>
+    <div id="experiencesList"></div>
+    <button class="add-btn" onclick="addExperience()">+ Ajouter une experience</button>
+  </div>
+
+  <!-- Formation -->
+  <div class="card">
+    <h2>Formation</h2>
+    <div id="educationList"></div>
+    <button class="add-btn" onclick="addEducation()">+ Ajouter une formation</button>
+  </div>
+
+  <!-- Template -->
+  <div class="card">
+    <h2>Template</h2>
+    <div class="template-grid">
+      <div class="template-opt selected" onclick="selectTemplate('classic', this)">
+        <div class="t-name">Classic</div>
+        <div class="t-desc">Header bleu · 2 colonnes · Sobre</div>
+      </div>
+      <div class="template-opt" onclick="selectTemplate('modern', this)">
+        <div class="t-name">Modern</div>
+        <div class="t-desc">Sidebar sombre · Badges skills</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="card progress-card" id="progressCard">
+    <h2>Generation en cours...</h2>
+    <div class="step-label" id="stepLabel">Initialisation...</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-pct" id="progressPct">0%</div>
+  </div>
+
+  <!-- Success -->
+  <div class="card success-card" id="successCard">
+    <h2>CV Genere !</h2>
+    <p style="color:#4a5568;margin-top:8px">Ton CV professionnel est pret.</p>
+    <button class="download-btn" id="downloadBtn">Telecharger le PDF</button>
+  </div>
+
+  <!-- Bouton principal -->
+  <button class="generate-btn" id="generateBtn" onclick="generate()">
+    Generer mon CV
+  </button>
+</div>
+
+<script>
+let selectedTemplate = 'classic';
+let photoBase64 = '';
+let expCount = 0;
+let eduCount = 0;
+
+// ── Template selection ───────────────────────────
+function selectTemplate(name, el) {
+  selectedTemplate = name;
+  document.querySelectorAll('.template-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ── Photo handling ───────────────────────────────
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const result = e.target.result;
+    photoBase64 = result.split(',')[1]; // enlever "data:image/jpeg;base64,"
+    const preview = document.getElementById('photoPreview');
+    preview.src = result;
+    preview.style.display = 'block';
+    document.getElementById('photoText').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Ajouter experience ───────────────────────────
+function addExperience() {
+  const id = expCount++;
+  const div = document.createElement('div');
+  div.className = 'exp-item';
+  div.id = 'exp-' + id;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeItem('exp-${id}')">x</button>
+    <div class="grid2">
+      <div class="field"><label>Entreprise</label>
+        <input type="text" class="exp-company" placeholder="FAKODROP"></div>
+      <div class="field"><label>Poste</label>
+        <input type="text" class="exp-position" placeholder="Lead Engineer"></div>
+      <div class="field"><label>Debut</label>
+        <input type="text" class="exp-start" placeholder="2022"></div>
+      <div class="field"><label>Fin (vide = present)</label>
+        <input type="text" class="exp-end" placeholder="2024"></div>
+    </div>
+    <div class="field"><label>Description</label>
+      <textarea class="exp-desc" placeholder="Principales responsabilites..."></textarea>
+    </div>
+  `;
+  document.getElementById('experiencesList').appendChild(div);
+}
+
+// ── Ajouter formation ────────────────────────────
+function addEducation() {
+  const id = eduCount++;
+  const div = document.createElement('div');
+  div.className = 'exp-item';
+  div.id = 'edu-' + id;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeItem('edu-${id}')">x</button>
+    <div class="grid2">
+      <div class="field"><label>Ecole</label>
+        <input type="text" class="edu-school" placeholder="Universite Felix Houphouet-Boigny"></div>
+      <div class="field"><label>Diplome</label>
+        <input type="text" class="edu-degree" placeholder="Ingenierie Informatique"></div>
+      <div class="field"><label>Annee</label>
+        <input type="number" class="edu-year" placeholder="2021"></div>
+    </div>
+  `;
+  document.getElementById('educationList').appendChild(div);
+}
+
+function removeItem(id) {
+  document.getElementById(id).remove();
+}
+
+// ── Collecter les experiences ────────────────────
+function getExperiences() {
+  return [...document.querySelectorAll('.exp-item[id^="exp-"]')].map(el => ({
+    company:     el.querySelector('.exp-company').value,
+    position:    el.querySelector('.exp-position').value,
+    start_date:  el.querySelector('.exp-start').value,
+    end_date:    el.querySelector('.exp-end').value,
+    description: el.querySelector('.exp-desc').value,
+  })).filter(e => e.company || e.position);
+}
+
+// ── Collecter les formations ─────────────────────
+function getEducation() {
+  return [...document.querySelectorAll('.exp-item[id^="edu-"]')].map(el => ({
+    school: el.querySelector('.edu-school').value,
+    degree: el.querySelector('.edu-degree').value,
+    year:   parseInt(el.querySelector('.edu-year').value) || 0,
+  })).filter(e => e.school || e.degree);
+}
+
+// ── Generer le CV via SSE ────────────────────────
+async function generate() {
+  const fullName = document.getElementById('fullName').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  if (!fullName || !email) {
+    alert('Nom et email obligatoires.');
+    return;
+  }
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generation en cours...';
+
+  // Afficher la progress bar
+  document.getElementById('progressCard').classList.add('visible');
+  document.getElementById('successCard').classList.remove('visible');
+
+  const body = {
+    full_name:   fullName,
+    email:       email,
+    phone:       document.getElementById('phone').value,
+    location:    document.getElementById('location').value,
+    summary:     document.getElementById('summary').value,
+    skills:      document.getElementById('skills').value.split(',').map(s => s.trim()).filter(Boolean),
+    experiences: getExperiences(),
+    education:   getEducation(),
+    template:    selectedTemplate,
+    photo:       photoBase64,
+  };
+
+  try {
+    const response = await fetch('/api/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = JSON.parse(line.slice(6));
+
+        // Mettre a jour la progression
+        document.getElementById('stepLabel').textContent = data.step || '';
+        document.getElementById('progressFill').style.width = (data.percent || 0) + '%';
+        document.getElementById('progressPct').textContent = (data.percent || 0) + '%';
+
+        // PDF final disponible
+        if (data.done && data.pdf) {
+          const pdfBytes = Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0));
+          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+
+          const dlBtn = document.getElementById('downloadBtn');
+          dlBtn.onclick = () => {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fullName.toLowerCase().replace(/ /g, '-') + '-cv.pdf';
+            a.click();
+          };
+
+          document.getElementById('successCard').classList.add('visible');
+        }
+      }
+    }
+  } catch (err) {
+    alert('Erreur: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generer mon CV';
+  }
+}
+</script>
+</body>
+</html>
