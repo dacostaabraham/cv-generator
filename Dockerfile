@@ -1,8 +1,18 @@
 FROM golang:latest AS builder
 
 WORKDIR /app
+
+# Copier SEULEMENT go.mod et go.sum d'abord
+COPY go.mod go.sum ./
+
+# Télécharger les dépendances (sans tidy)
+RUN go mod download
+
+# Puis copier le reste du code
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -o cv-generator ./cmd/
+
+# Builder
+RUN CGO_ENABLED=0 GOOS=linux go build -o cv-generator ./cmd/
 
 # ── Image finale légère ──
 FROM alpine:latest
