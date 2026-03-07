@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	pb "github.com/dacostaabraham/cv-generator.git/proto"
+	pb "github.com/dacostaabraham/cv-generator/proto"
 )
 
 // Handler contient le client gRPC

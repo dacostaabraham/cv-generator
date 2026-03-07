@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/dacostaabraham/cv-generator.git/internal/models"
+	"github.com/dacostaabraham/cv-generator/internal/models"
 )
 
 func main() {

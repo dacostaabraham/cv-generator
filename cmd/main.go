@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 
-	pb "github.com/dacostaabraham/cv-generator.git/proto"
+	pb "github.com/dacostaabraham/cv-generator/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"

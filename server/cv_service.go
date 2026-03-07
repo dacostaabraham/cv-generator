@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	pdfgen "github.com/dacostaabraham/cv-generator.git/internal/pdf" // AJOUTER
-	pb "github.com/dacostaabraham/cv-generator.git/proto"
+	pdfgen "github.com/dacostaabraham/cv-generator/internal/pdf" // AJOUTER
+	pb "github.com/dacostaabraham/cv-generator/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -1,4 +1,4 @@
-module github.com/dacostaabraham/cv-generator.git
+module github.com/dacostaabraham/cv-generator
 
 go 1.25.0
 

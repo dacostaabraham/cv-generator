@@ -3,8 +3,8 @@ package pdf
 import (
 	"fmt"
 
-	templates "github.com/dacostaabraham/cv-generator.git/internal/template"
-	pb "github.com/dacostaabraham/cv-generator.git/proto"
+	templates "github.com/dacostaabraham/cv-generator/internal/template"
+	pb "github.com/dacostaabraham/cv-generator/proto"
 )
 
 // CVTemplate : tout type qui implemente Render() et Name()

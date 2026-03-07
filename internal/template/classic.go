@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	pb "github.com/dacostaabraham/cv-generator.git/proto"
+	pb "github.com/dacostaabraham/cv-generator/proto"
 	"github.com/signintech/gopdf"
 )
 
