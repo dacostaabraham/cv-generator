@@ -4,7 +4,6 @@
 cv-generator
 
 # Fichiers générés par protoc (on les régénère avec make proto)
-proto/*.pb.go
 
 # Dépendances (go.sum suffit)
 vendor/
