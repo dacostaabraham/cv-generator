@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 
 	pb "github.com/dacostaabraham/cv-generator/proto"
 	"google.golang.org/grpc"
@@ -29,7 +30,7 @@ func main() {
 	}()
 
 	// ── 2. Connecter le gateway au gRPC interne ───────────
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		"localhost:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -44,13 +45,26 @@ func main() {
 	// ── 3. Routes HTTP ────────────────────────────────────
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir("./web")))
+
+	// Routes legacy (gRPC) — compatibilité
 	mux.HandleFunc("/api/generate", h.withCORS(h.GenerateCV))
 	mux.HandleFunc("/api/stream", h.withCORS(h.StreamProgress))
 
+	// Route v2 — direct, extended model, no gRPC overhead
+	mux.HandleFunc("/api/v2/stream", h.withCORS(h.StreamExtended))
+
+	// Route paiement — vérification Chariow + émission token
+	mux.HandleFunc("/api/verify-payment", h.withCORS(h.VerifyPayment))
+
 	// ── 4. Démarrer le gateway HTTP ───────────────────────
-	port := ":8080"
-	fmt.Printf("Gateway HTTP http://localhost%s\n", port)
-	if err := http.ListenAndServe(port, mux); err != nil {
+	// Utilise $PORT si défini (Render, Railway, etc.), sinon 8080
+	httpPort := os.Getenv("PORT")
+	if httpPort == "" {
+		httpPort = "8080"
+	}
+	addr := ":" + httpPort
+	fmt.Printf("CV Generator v2 — http://localhost%s\n", addr)
+	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatalf("HTTP serve: %v", err)
 	}
 }

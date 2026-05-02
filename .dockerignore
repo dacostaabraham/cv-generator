@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# Binaires locaux
+cv-generator
+*.exe
+*.bin
+
+# Docs & configs dev
+*.md
+render.yaml
+.env
+.env.*
+
+# Dossiers inutiles en prod
+gateway/
+server/
+
+# Go cache
+vendor/

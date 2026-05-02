@@ -1,0 +1,16 @@
+# render.yaml — Infrastructure as Code pour Render
+# Doc : https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: web
+    name: cv-generator
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free          # Passer à "starter" (~7$/mois) pour éviter la dormance
+    region: frankfurt   # Le plus proche de l'Afrique/Europe
+    envVars:
+      - key: PORT
+        generateValue: false
+        value: "10000"  # Render utilise le port 10000 par défaut en interne
+    healthCheckPath: /
+    autoDeploy: true    # Re-déploiement automatique à chaque push sur la branche main

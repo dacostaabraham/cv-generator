@@ -3,488 +3,1065 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CV Generator — FAKODROP</title>
+<title>CV Builder Pro — FAKODROP</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family: system-ui, sans-serif;
-  background: #f0f4f8;
-  color: #1a202c;
-  min-height: 100vh;
-  padding: 40px 20px;
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#1c3678;--primary-dark:#142a5e;--primary-light:#e8f0fc;
+  --accent:#3b82f6;--success:#10b981;--danger:#ef4444;
+  --text:#0f172a;--text-muted:#64748b;--border:#e2e8f0;
+  --bg:#f8fafc;--card:#ffffff;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --shadow-md:0 4px 24px rgba(0,0,0,.10);
+  --radius:12px;--radius-sm:8px;
+  --transition:all .18s cubic-bezier(.4,0,.2,1);
 }
-.container { max-width: 720px; margin: 0 auto; }
-h1 {
-  font-size: 28px;
-  font-weight: 800;
-  color: #1c3678;
-  margin-bottom: 6px;
-}
-.subtitle { color: #718096; font-size: 14px; margin-bottom: 32px; }
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 28px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-.card h2 {
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #1c3678;
-  margin-bottom: 18px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #e8f0fa;
-}
-.field { margin-bottom: 16px; }
-.field label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #4a5568;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-.field input, .field textarea, .field select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #1a202c;
-  transition: border-color 0.15s;
-  font-family: inherit;
-}
-.field input:focus, .field textarea:focus, .field select:focus {
-  outline: none;
-  border-color: #1c3678;
-}
-.field textarea { min-height: 80px; resize: vertical; }
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-/* Experiences dynamiques */
-.exp-item {
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-  position: relative;
-}
-.exp-item .remove-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #fed7d7;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #e53e3e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.add-btn {
-  width: 100%;
-  padding: 10px;
-  border: 1.5px dashed #bee3f8;
-  border-radius: 8px;
-  background: transparent;
-  color: #1c3678;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.add-btn:hover { background: #ebf8ff; }
-
-/* Photo upload */
-.photo-zone {
-  border: 2px dashed #bee3f8;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.photo-zone:hover { background: #ebf8ff; }
-.photo-zone input { display: none; }
-.photo-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: none; }
-
-/* Template selector */
-.template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.template-opt {
-  padding: 14px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.15s;
-}
-.template-opt:hover { border-color: #1c3678; }
-.template-opt.selected { border-color: #1c3678; background: #e8f0fa; }
-.template-opt .t-name { font-weight: 700; font-size: 13px; color: #1c3678; }
-.template-opt .t-desc { font-size: 11px; color: #718096; margin-top: 3px; }
-
-/* Progress */
-.progress-card { display: none; }
-.progress-card.visible { display: block; }
-.step-label {
-  font-size: 14px;
-  color: #4a5568;
-  margin-bottom: 10px;
-  min-height: 20px;
-}
-.progress-track {
-  width: 100%;
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #1c3678, #4a7cd4);
-  border-radius: 4px;
-  width: 0%;
-  transition: width 0.4s ease;
-}
-.progress-pct {
-  text-align: right;
-  font-size: 12px;
-  font-weight: 700;
-  color: #1c3678;
-  margin-top: 6px;
-}
-
-/* Bouton generer */
-.generate-btn {
-  width: 100%;
-  padding: 16px;
-  background: #1c3678;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.04em;
-}
-.generate-btn:hover { background: #2d4fa0; transform: translateY(-1px); }
-.generate-btn:disabled { background: #a0aec0; cursor: not-allowed; transform: none; }
-
-/* Success */
-.success-card { display:none; text-align:center; }
-.success-card.visible { display: block; }
-.download-btn {
-  display: inline-block;
-  padding: 12px 28px;
-  background: #38a169;
-  color: white;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
-  margin-top: 12px;
-  cursor: pointer;
-  border: none;
-}
-
-@media(max-width:600px){
-  .grid2{grid-template-columns:1fr;}
-  .template-grid{grid-template-columns:1fr;}
-}
+body{font-family:-apple-system,'Inter',BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+.app-header{background:linear-gradient(135deg,var(--primary) 0%,#2d4fa0 60%,#1a6fc4 100%);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(28,54,120,.25)}
+.logo{display:flex;align-items:center;gap:10px;color:white;text-decoration:none}
+.logo-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid rgba(255,255,255,.25)}
+.logo-text{font-weight:800;font-size:18px;letter-spacing:-.3px}
+.logo-badge{font-size:10px;background:rgba(59,130,246,.8);padding:2px 7px;border-radius:20px;font-weight:600;letter-spacing:.5px}
+.header-hint{color:rgba(255,255,255,.7);font-size:13px}
+.app-layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 64px);max-width:1280px;margin:0 auto}
+.sidebar{background:white;border-right:1px solid var(--border);padding:28px 16px;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.sidebar-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);padding:0 12px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);margin-bottom:2px;font-size:14px;font-weight:500;color:var(--text-muted);border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--primary-light);color:var(--primary)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:700}
+.nav-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--border);flex-shrink:0}
+.nav-item.active .nav-icon{background:var(--primary);color:white}
+.nav-check{margin-left:auto;width:16px;height:16px;border-radius:50%;background:var(--success);color:white;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:700}
+.nav-item.done .nav-check{display:flex}
+.sidebar-divider{height:1px;background:var(--border);margin:16px 0}
+.sidebar-progress{padding:12px 14px;background:var(--primary-light);border-radius:var(--radius-sm);margin-top:8px}
+.sidebar-progress-label{font-size:11px;font-weight:600;color:var(--primary);margin-bottom:8px}
+.sidebar-progress-bar{height:5px;background:rgba(28,54,120,.15);border-radius:3px;overflow:hidden}
+.sidebar-progress-fill{height:100%;background:var(--primary);border-radius:3px;transition:width .4s ease;width:0%}
+.main-content{padding:32px 40px;max-width:860px}
+.section-block{display:none}
+.section-block.active{display:block}
+.section-header{margin-bottom:28px}
+.section-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.section-subtitle{font-size:14px;color:var(--text-muted);margin-top:4px}
+.card{background:var(--card);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--primary);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--primary-light)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.field{margin-bottom:0}
+.field+.field{margin-top:16px}
+.field-label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.optional{font-size:10px;background:var(--bg);padding:1px 5px;border-radius:3px;text-transform:none;letter-spacing:0;font-weight:500}
+.field input,.field textarea,.field select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);transition:var(--transition);font-family:inherit;background:white}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.10)}
+.field textarea{min-height:90px;resize:vertical;line-height:1.6}
+.field input::placeholder,.field textarea::placeholder{color:#c1cdd9}
+.photo-upload-area{display:flex;align-items:center;gap:20px}
+.photo-preview-wrapper{width:88px;height:88px;border-radius:50%;background:var(--primary-light);border:3px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:28px;cursor:pointer;transition:var(--transition)}
+.photo-preview-wrapper:hover{border-color:var(--accent)}
+.photo-preview-wrapper img{width:100%;height:100%;object-fit:cover;display:none}
+.photo-upload-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--accent);border-radius:var(--radius-sm);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);background:none}
+.photo-upload-btn:hover{background:var(--primary-light)}
+.photo-upload-hint{font-size:12px;color:var(--text-muted);margin-top:6px}
+#photoInput{display:none}
+.tags-container{min-height:46px;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:6px 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;background:white;cursor:text;transition:var(--transition)}
+.tags-container:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.10)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--primary-light);border-radius:20px;font-size:12px;font-weight:600;color:var(--primary);white-space:nowrap}
+.tag-remove{cursor:pointer;opacity:.6;font-size:14px;line-height:1;padding:0 2px;border:none;background:none;color:inherit}
+.tag-remove:hover{opacity:1}
+.tag-input{border:none;outline:none;font-size:13px;flex:1;min-width:120px;padding:4px;background:transparent;font-family:inherit;color:var(--text)}
+.tags-hint{font-size:11px;color:var(--text-muted);margin-top:5px}
+kbd{background:#f1f5f9;border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:10px;font-family:monospace}
+.entry-list{display:flex;flex-direction:column;gap:14px}
+.entry-item{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:18px;position:relative;transition:var(--transition)}
+.entry-item:hover{border-color:#c7d8ef}
+.entry-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.entry-item-num{font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.08em}
+.entry-remove-btn{width:26px;height:26px;border-radius:50%;background:#fee2e2;border:none;cursor:pointer;color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--transition)}
+.entry-remove-btn:hover{background:var(--danger);color:white}
+.add-btn{width:100%;padding:10px 16px;border:1.5px dashed var(--accent);border-radius:var(--radius-sm);background:transparent;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px}
+.add-btn:hover{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.template-opt{border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:var(--transition);overflow:hidden;background:white}
+.template-opt:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.template-opt.selected{border-color:var(--primary);box-shadow:0 0 0 3px rgba(28,54,120,.12)}
+.template-preview{width:100%;aspect-ratio:210/297;display:block;background:#f8fafc}
+.template-meta{padding:10px 12px;border-top:1px solid var(--border)}
+.template-name{font-weight:700;font-size:12px;color:var(--text)}
+.template-desc{font-size:10px;color:var(--text-muted);margin-top:2px}
+.template-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+.badge-new{background:#dcfce7;color:#15803d}
+.badge-popular{background:#fef3c7;color:#92400e}
+.bottom-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0 32px;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);border:none;font-family:inherit}
+.btn-outline{background:white;border:1.5px solid var(--border);color:var(--text-muted)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(28,54,120,.3)}
+.btn-success{background:var(--success);color:white}
+.btn-success:hover{background:#059669}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.generate-hero{background:linear-gradient(135deg,var(--primary) 0%,#2d4fa0 100%);border-radius:var(--radius);padding:40px 32px;color:white;margin-bottom:24px;text-align:center}
+.generate-hero h2{font-size:24px;font-weight:800;margin-bottom:6px}
+.generate-hero p{opacity:.8;font-size:14px}
+.generate-btn-main{display:inline-flex;align-items:center;gap:10px;padding:16px 40px;background:white;color:var(--primary);border:none;border-radius:50px;font-size:16px;font-weight:800;cursor:pointer;transition:var(--transition);margin-top:24px;letter-spacing:-.2px}
+.generate-btn-main:hover{transform:scale(1.03);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.generate-btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.progress-card{background:white;border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);border:1px solid var(--border);display:none}
+.progress-card.visible{display:block}
+.progress-step-label{font-size:14px;color:var(--text-muted);margin-bottom:12px;min-height:20px;display:flex;align-items:center;gap:10px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.progress-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:4px;width:0%;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.progress-pct{text-align:right;font-size:12px;font-weight:700;color:var(--primary)}
+.success-card{background:white;border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);border:1px solid #d1fae5;display:none;text-align:center}
+.success-card.visible{display:block}
+.success-icon{width:64px;height:64px;border-radius:50%;background:#d1fae5;color:var(--success);font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.success-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
+.success-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px}
+.success-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.cv-summary{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}
+.cv-summary-item .val{font-size:22px;font-weight:800;color:var(--primary)}
+.cv-summary-item .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+/* ── Payment Gate ── */
+.payment-gate{background:white;border-radius:var(--radius);padding:36px 32px;box-shadow:var(--shadow);border:2px solid var(--border);text-align:center;margin-bottom:24px}
+.payment-gate-icon{font-size:48px;margin-bottom:12px}
+.payment-gate-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px}
+.payment-gate-desc{font-size:14px;color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.payment-price-badge{display:inline-flex;align-items:baseline;gap:4px;background:linear-gradient(135deg,#1c3678,#2d4fa0);color:white;padding:10px 24px;border-radius:50px;font-size:18px;font-weight:800;margin-bottom:24px}
+.payment-price-badge .price-currency{font-size:12px;font-weight:500;opacity:.8}
+.payment-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 40px;background:linear-gradient(135deg,#1c3678,#2d4fa0);color:white;border:none;border-radius:50px;font-size:16px;font-weight:800;cursor:pointer;transition:var(--transition);letter-spacing:-.2px}
+.payment-btn:hover{transform:scale(1.03);box-shadow:0 8px 32px rgba(28,54,120,.35)}
+.payment-features{display:flex;justify-content:center;gap:20px;margin-bottom:24px;flex-wrap:wrap}
+.payment-feat{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);font-weight:500}
+.payment-verifying{display:none;align-items:center;gap:12px;justify-content:center;padding:16px;color:var(--text-muted);font-size:14px}
+.payment-verifying.visible{display:flex}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.payment-error{display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius-sm);padding:14px 18px;color:#dc2626;font-size:14px;margin-bottom:16px;text-align:left}
+.payment-error.visible{display:block}
+.payment-unlocked-badge{display:none;background:#d1fae5;border:1px solid #6ee7b7;border-radius:var(--radius-sm);padding:12px 18px;color:#065f46;font-size:14px;font-weight:600;margin-bottom:16px;text-align:center}
+.payment-unlocked-badge.visible{display:flex;align-items:center;justify-content:center;gap:8px}
+.step-indicator{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mt-4{margin-top:16px}
+.text-muted{color:var(--text-muted);font-size:13px}
+@media(max-width:900px){.app-layout{grid-template-columns:1fr}.sidebar{display:none}.main-content{padding:24px 20px}.template-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}.template-grid{grid-template-columns:1fr 1fr}.cv-summary{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>CV Generator</h1>
-  <p class="subtitle">Remplis le formulaire et telecharge ton CV professionnel en PDF.</p>
+<header class="app-header">
+  <a class="logo" href="#">
+    <div class="logo-icon">📄</div>
+    <span class="logo-text">CV Builder</span>
+    <span class="logo-badge">PRO</span>
+  </a>
+  <span class="header-hint">5 templates · PDF haute qualité · 100% gratuit</span>
+</header>
 
-  <!-- Infos personnelles -->
-  <div class="card">
-    <h2>Informations personnelles</h2>
-    <div class="grid2">
-      <div class="field">
-        <label>Nom complet *</label>
-        <input id="fullName" type="text" placeholder="Abraham Kouassi">
-      </div>
-      <div class="field">
-        <label>Email *</label>
-        <input id="email" type="email" placeholder="abraham@fakodrop.ci">
-      </div>
-      <div class="field">
-        <label>Telephone</label>
-        <input id="phone" type="text" placeholder="+225 07 00 00 00">
-      </div>
-      <div class="field">
-        <label>Ville / Localisation</label>
-        <input id="location" type="text" placeholder="Abidjan, Cote d'Ivoire">
-      </div>
-    </div>
-    <div class="field">
-      <label>Profil / Resumé</label>
-      <textarea id="summary" placeholder="Decris-toi en quelques phrases..."></textarea>
-    </div>
-    <div class="field">
-      <label>Photo (optionnel)</label>
-      <div class="photo-zone" onclick="document.getElementById('photoInput').click()">
-        <img id="photoPreview" class="photo-preview">
-        <div id="photoText">Clique pour ajouter une photo</div>
-        <input id="photoInput" type="file" accept="image/*" onchange="handlePhoto(this)">
-      </div>
-    </div>
-  </div>
-
-  <!-- Competences -->
-  <div class="card">
-    <h2>Competences</h2>
-    <div class="field">
-      <label>Skills (separees par des virgules)</label>
-      <input id="skills" type="text" placeholder="Go, gRPC, Flutter, PHP, MySQL">
-    </div>
-  </div>
-
-  <!-- Experiences -->
-  <div class="card">
-    <h2>Experiences professionnelles</h2>
-    <div id="experiencesList"></div>
-    <button class="add-btn" onclick="addExperience()">+ Ajouter une experience</button>
-  </div>
-
-  <!-- Formation -->
-  <div class="card">
-    <h2>Formation</h2>
-    <div id="educationList"></div>
-    <button class="add-btn" onclick="addEducation()">+ Ajouter une formation</button>
-  </div>
-
-  <!-- Template -->
-  <div class="card">
-    <h2>Template</h2>
-    <div class="template-grid">
-      <div class="template-opt selected" onclick="selectTemplate('classic', this)">
-        <div class="t-name">Classic</div>
-        <div class="t-desc">Header bleu · 2 colonnes · Sobre</div>
-      </div>
-      <div class="template-opt" onclick="selectTemplate('modern', this)">
-        <div class="t-name">Modern</div>
-        <div class="t-desc">Sidebar sombre · Badges skills</div>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">Sections</div>
+    <button class="nav-item active" onclick="goTo('profil',this)" data-section="profil">
+      <span class="nav-icon">👤</span>Profil<span class="nav-check">✓</span>
+    </button>
+    <button class="nav-item" onclick="goTo('competences',this)" data-section="competences">
+      <span class="nav-icon">⚡</span>Compétences<span class="nav-check">✓</span>
+    </button>
+    <button class="nav-item" onclick="goTo('experience',this)" data-section="experience">
+      <span class="nav-icon">💼</span>Expérience<span class="nav-check">✓</span>
+    </button>
+    <button class="nav-item" onclick="goTo('formation',this)" data-section="formation">
+      <span class="nav-icon">🎓</span>Formation<span class="nav-check">✓</span>
+    </button>
+    <button class="nav-item" onclick="goTo('extras',this)" data-section="extras">
+      <span class="nav-icon">🌐</span>Extras<span class="nav-check">✓</span>
+    </button>
+    <button class="nav-item" onclick="goTo('template',this)" data-section="template">
+      <span class="nav-icon">🎨</span>Template<span class="nav-check">✓</span>
+    </button>
+    <button class="nav-item" onclick="goTo('generate',this)" data-section="generate">
+      <span class="nav-icon">✨</span>Générer<span class="nav-check">✓</span>
+    </button>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-progress">
+      <div class="sidebar-progress-label">Complétion — <span id="progressPctSide">0%</span></div>
+      <div class="sidebar-progress-bar">
+        <div class="sidebar-progress-fill" id="progressFillSide"></div>
       </div>
     </div>
-  </div>
+  </aside>
 
-  <!-- Progress -->
-  <div class="card progress-card" id="progressCard">
-    <h2>Generation en cours...</h2>
-    <div class="step-label" id="stepLabel">Initialisation...</div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
+  <main class="main-content">
+
+    <!-- ═══ PROFIL ═══ -->
+    <div class="section-block active" id="section-profil">
+      <div class="section-header">
+        <div class="step-indicator"><div class="step-num">1</div>Étape 1 / 7</div>
+        <div class="section-title">Informations personnelles</div>
+        <div class="section-subtitle">Les informations de base affichées en haut de ton CV.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Identité</div>
+        <div class="grid2">
+          <div class="field">
+            <div class="field-label">Nom complet <span style="color:var(--danger)">*</span></div>
+            <input id="fullName" type="text" placeholder="Abraham Dacosta">
+          </div>
+          <div class="field">
+            <div class="field-label">Titre du poste <span class="optional">optionnel</span></div>
+            <input id="jobTitle" type="text" placeholder="Senior Fullstack Engineer">
+          </div>
+          <div class="field">
+            <div class="field-label">Email <span style="color:var(--danger)">*</span></div>
+            <input id="email" type="email" placeholder="abraham@fakodrop.ci">
+          </div>
+          <div class="field">
+            <div class="field-label">Téléphone <span class="optional">optionnel</span></div>
+            <input id="phone" type="text" placeholder="+225 07 00 00 00">
+          </div>
+          <div class="field">
+            <div class="field-label">Localisation <span class="optional">optionnel</span></div>
+            <input id="location" type="text" placeholder="Abidjan, Côte d'Ivoire">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Profil / Résumé</div>
+        <div class="field">
+          <div class="field-label">Description percutante de ton profil</div>
+          <textarea id="summary" placeholder="Développeur Senior Fullstack avec +4 ans d'expérience en fintech. Je conçois des systèmes scalables et des produits à fort impact en Afrique..."></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Photo de profil</div>
+        <div class="photo-upload-area">
+          <div class="photo-preview-wrapper" onclick="document.getElementById('photoInput').click()">
+            <img id="photoPreviewImg" src="">
+            <span id="photoPlaceholder">📷</span>
+          </div>
+          <div>
+            <button class="photo-upload-btn" onclick="document.getElementById('photoInput').click()">📤 Choisir une photo</button>
+            <div class="photo-upload-hint">JPG ou PNG recommandé · Photo carrée idéale · Moins de 2 MB</div>
+            <input id="photoInput" type="file" accept="image/*" onchange="handlePhoto(this)">
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div></div>
+        <button class="btn btn-primary" onclick="goToNext('profil')">Suivant : Compétences →</button>
+      </div>
     </div>
-    <div class="progress-pct" id="progressPct">0%</div>
-  </div>
 
-  <!-- Success -->
-  <div class="card success-card" id="successCard">
-    <h2>CV Genere !</h2>
-    <p style="color:#4a5568;margin-top:8px">Ton CV professionnel est pret.</p>
-    <button class="download-btn" id="downloadBtn">Telecharger le PDF</button>
-  </div>
+    <!-- ═══ COMPÉTENCES ═══ -->
+    <div class="section-block" id="section-competences">
+      <div class="section-header">
+        <div class="step-indicator"><div class="step-num">2</div>Étape 2 / 7</div>
+        <div class="section-title">Compétences</div>
+        <div class="section-subtitle">Tape et appuie sur Entrée pour ajouter chaque compétence.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Stack technique & soft skills</div>
+        <div class="field">
+          <div class="field-label">Compétences clés</div>
+          <div class="tags-container" id="skillsTagsContainer" onclick="document.getElementById('skillInput').focus()">
+            <input id="skillInput" class="tag-input" type="text" placeholder="Ex: Go, Python, React..." onkeydown="handleTagInput(event,'skills')">
+          </div>
+          <div class="tags-hint">Appuie sur <kbd>Entrée</kbd> ou <kbd>,</kbd> pour ajouter · <kbd>Backspace</kbd> pour supprimer</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Langues parlées</div>
+        <div class="field">
+          <div class="field-label">Langues</div>
+          <div class="tags-container" id="langsTagsContainer" onclick="document.getElementById('langInput').focus()">
+            <input id="langInput" class="tag-input" type="text" placeholder="Ex: Français, Anglais, Dioula..." onkeydown="handleTagInput(event,'languages')">
+          </div>
+          <div class="tags-hint">Appuie sur <kbd>Entrée</kbd> ou <kbd>,</kbd> pour ajouter</div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <button class="btn btn-outline" onclick="goTo('profil')">← Retour</button>
+        <button class="btn btn-primary" onclick="goToNext('competences')">Suivant : Expérience →</button>
+      </div>
+    </div>
 
-  <!-- Bouton principal -->
-  <button class="generate-btn" id="generateBtn" onclick="generate()">
-    Generer mon CV
-  </button>
+    <!-- ═══ EXPÉRIENCE ═══ -->
+    <div class="section-block" id="section-experience">
+      <div class="section-header">
+        <div class="step-indicator"><div class="step-num">3</div>Étape 3 / 7</div>
+        <div class="section-title">Expériences professionnelles</div>
+        <div class="section-subtitle">Ajoute tes postes du plus récent au plus ancien.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Postes occupés</div>
+        <div class="entry-list" id="experiencesList"></div>
+        <button class="add-btn" onclick="addExperience()">＋ Ajouter une expérience</button>
+      </div>
+      <div class="bottom-nav">
+        <button class="btn btn-outline" onclick="goTo('competences')">← Retour</button>
+        <button class="btn btn-primary" onclick="goToNext('experience')">Suivant : Formation →</button>
+      </div>
+    </div>
+
+    <!-- ═══ FORMATION ═══ -->
+    <div class="section-block" id="section-formation">
+      <div class="section-header">
+        <div class="step-indicator"><div class="step-num">4</div>Étape 4 / 7</div>
+        <div class="section-title">Formation académique</div>
+        <div class="section-subtitle">Diplômes, certifications universitaires, formations.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Diplômes & Formations</div>
+        <div class="entry-list" id="educationList"></div>
+        <button class="add-btn" onclick="addEducation()">＋ Ajouter une formation</button>
+      </div>
+      <div class="bottom-nav">
+        <button class="btn btn-outline" onclick="goTo('experience')">← Retour</button>
+        <button class="btn btn-primary" onclick="goToNext('formation')">Suivant : Extras →</button>
+      </div>
+    </div>
+
+    <!-- ═══ EXTRAS ═══ -->
+    <div class="section-block" id="section-extras">
+      <div class="section-header">
+        <div class="step-indicator"><div class="step-num">5</div>Étape 5 / 7</div>
+        <div class="section-title">Infos supplémentaires</div>
+        <div class="section-subtitle">Liens professionnels et certifications pour te démarquer.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Présence en ligne</div>
+        <div class="grid2">
+          <div class="field">
+            <div class="field-label">LinkedIn <span class="optional">optionnel</span></div>
+            <input id="linkedin" type="text" placeholder="linkedin.com/in/ton-profil">
+          </div>
+          <div class="field">
+            <div class="field-label">GitHub <span class="optional">optionnel</span></div>
+            <input id="github" type="text" placeholder="github.com/ton-pseudo">
+          </div>
+          <div class="field">
+            <div class="field-label">Portfolio / Site <span class="optional">optionnel</span></div>
+            <input id="website" type="text" placeholder="tonfakodrop.ci">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Certifications</div>
+        <div class="field">
+          <div class="field-label">Certifications & Badges</div>
+          <div class="tags-container" id="certsTagsContainer" onclick="document.getElementById('certInput').focus()">
+            <input id="certInput" class="tag-input" type="text" placeholder="Ex: AWS Solutions Architect, CKAD..." onkeydown="handleTagInput(event,'certifications')">
+          </div>
+          <div class="tags-hint">Appuie sur <kbd>Entrée</kbd> ou <kbd>,</kbd> pour ajouter</div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <button class="btn btn-outline" onclick="goTo('formation')">← Retour</button>
+        <button class="btn btn-primary" onclick="goToNext('extras')">Suivant : Template →</button>
+      </div>
+    </div>
+
+    <!-- ═══ TEMPLATE ═══ -->
+    <div class="section-block" id="section-template">
+      <div class="section-header">
+        <div class="step-indicator"><div class="step-num">6</div>Étape 6 / 7</div>
+        <div class="section-title">Choix du template</div>
+        <div class="section-subtitle">Sélectionne le design qui correspond le mieux à ton profil.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">5 Templates disponibles</div>
+        <div class="template-grid">
+
+          <!-- Classic -->
+          <div class="template-opt selected" onclick="selectTemplate('classic',this)">
+            <svg class="template-preview" viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="297" fill="#f8fafc"/>
+              <rect width="210" height="75" fill="#e8f0fc"/>
+              <rect y="69" width="210" height="6" fill="#1c3678"/>
+              <rect x="16" y="12" width="50" height="55" fill="#d1ddf5" rx="2"/>
+              <rect x="78" y="16" width="90" height="14" fill="#1c3678" rx="2"/>
+              <rect x="78" y="35" width="60" height="6" fill="#3b82f6" rx="1"/>
+              <rect x="78" y="46" width="110" height="4" fill="#94a3b8" rx="1"/>
+              <rect x="78" y="54" width="80" height="4" fill="#94a3b8" rx="1"/>
+              <rect x="78" y="62" width="95" height="4" fill="#94a3b8" rx="1"/>
+              <rect x="16" y="88" width="4" height="10" fill="#1c3678"/>
+              <rect x="24" y="88" width="70" height="5" fill="#1c3678" rx="1"/>
+              <rect x="16" y="95" width="170" height="1" fill="#cbd5e1"/>
+              <rect x="16" y="100" width="160" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="16" y="106" width="140" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="16" y="120" width="4" height="10" fill="#1c3678"/>
+              <rect x="24" y="120" width="90" height="5" fill="#1c3678" rx="1"/>
+              <rect x="16" y="127" width="170" height="1" fill="#cbd5e1"/>
+              <rect x="16" y="135" width="3" height="8" fill="#3b82f6"/>
+              <rect x="22" y="135" width="80" height="4" fill="#0f172a" rx="1"/>
+              <rect x="22" y="142" width="60" height="3" fill="#3b82f6" rx="1"/>
+              <rect x="22" y="148" width="140" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="16" y="165" width="3" height="8" fill="#3b82f6"/>
+              <rect x="22" y="165" width="75" height="4" fill="#0f172a" rx="1"/>
+              <rect x="22" y="172" width="50" height="3" fill="#3b82f6" rx="1"/>
+              <rect x="22" y="178" width="130" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="16" y="200" width="4" height="10" fill="#1c3678"/>
+              <rect x="24" y="200" width="65" height="5" fill="#1c3678" rx="1"/>
+              <rect x="16" y="207" width="170" height="1" fill="#cbd5e1"/>
+              <rect x="16" y="215" width="55" height="10" fill="#e8f0fc" rx="2"/>
+              <rect x="16" y="215" width="3" height="10" fill="#3b82f6" rx="1"/>
+              <rect x="75" y="215" width="55" height="10" fill="#e8f0fc" rx="2"/>
+              <rect x="75" y="215" width="3" height="10" fill="#3b82f6" rx="1"/>
+              <rect x="134" y="215" width="52" height="10" fill="#e8f0fc" rx="2"/>
+              <rect x="134" y="215" width="3" height="10" fill="#3b82f6" rx="1"/>
+            </svg>
+            <div class="template-meta">
+              <div class="template-name">Classic</div>
+              <div class="template-desc">Header bleu marine · Double colonne</div>
+              <span class="template-badge badge-popular">Populaire</span>
+            </div>
+          </div>
+
+          <!-- Modern -->
+          <div class="template-opt" onclick="selectTemplate('modern',this)">
+            <svg class="template-preview" viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="297" fill="#f8fafc"/>
+              <rect width="65" height="297" fill="#0f172a"/>
+              <rect y="0" width="65" height="5" fill="#6366f1"/>
+              <rect x="17" y="18" width="32" height="32" fill="#1e293b" rx="16"/>
+              <rect x="27" y="54" width="12" height="2" fill="#6366f1" rx="1"/>
+              <rect x="20" y="60" width="26" height="5" fill="#f8fafc" rx="1"/>
+              <rect x="20" y="68" width="26" height="3" fill="#22d3ee" rx="1"/>
+              <rect x="17" y="80" width="16" height="2" fill="#22d3ee" rx="1"/>
+              <rect x="17" y="86" width="5" height="5" fill="#6366f1" rx="1"/>
+              <rect x="24" y="87" width="32" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="17" y="95" width="5" height="5" fill="#6366f1" rx="1"/>
+              <rect x="24" y="96" width="28" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="17" y="105" width="5" height="5" fill="#6366f1" rx="1"/>
+              <rect x="24" y="106" width="30" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="17" y="118" width="16" height="2" fill="#22d3ee" rx="1"/>
+              <rect x="17" y="124" width="45" height="8" fill="#1e293b" rx="2"/>
+              <rect x="17" y="135" width="35" height="8" fill="#1e293b" rx="2"/>
+              <rect x="17" y="146" width="40" height="8" fill="#1e293b" rx="2"/>
+              <rect x="75" y="15" width="3" height="10" fill="#6366f1"/>
+              <rect x="82" y="15" width="80" height="5" fill="#6366f1" rx="1"/>
+              <rect x="75" y="27" width="120" height="1" fill="#e2e8f0"/>
+              <rect x="75" y="33" width="115" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="75" y="39" width="100" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="75" y="50" width="3" height="10" fill="#6366f1"/>
+              <rect x="82" y="50" width="65" height="5" fill="#6366f1" rx="1"/>
+              <rect x="75" y="62" width="120" height="1" fill="#e2e8f0"/>
+              <rect x="75" y="68" width="8" height="8" fill="#6366f1" rx="1"/>
+              <rect x="87" y="68" width="65" height="4" fill="#0f172a" rx="1"/>
+              <rect x="87" y="75" width="50" height="3" fill="#6366f1" rx="1"/>
+              <rect x="75" y="85" width="8" height="8" fill="#6366f1" rx="1"/>
+              <rect x="87" y="85" width="55" height="4" fill="#0f172a" rx="1"/>
+              <rect x="87" y="92" width="45" height="3" fill="#6366f1" rx="1"/>
+            </svg>
+            <div class="template-meta">
+              <div class="template-name">Modern</div>
+              <div class="template-desc">Sidebar sombre · Indigo · Tech</div>
+            </div>
+          </div>
+
+          <!-- Executive -->
+          <div class="template-opt" onclick="selectTemplate('executive',this)">
+            <svg class="template-preview" viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="297" fill="#fff"/>
+              <rect width="210" height="72" fill="#1a1a2e"/>
+              <rect y="69" width="210" height="3" fill="#c9a84c"/>
+              <rect x="14" y="12" width="44" height="46" fill="#2a2a4e" rx="2"/>
+              <rect x="68" y="14" width="95" height="14" fill="#fff" rx="2"/>
+              <rect x="68" y="32" width="65" height="6" fill="#c9a84c" rx="1"/>
+              <rect x="68" y="42" width="120" height="1" fill="#c9a84c"/>
+              <rect x="68" y="48" width="130" height="3" fill="#999" rx="1"/>
+              <rect x="68" y="55" width="110" height="3" fill="#999" rx="1"/>
+              <rect x="14" y="82" width="115" height="10" fill="#f5f5f0" rx="2"/>
+              <rect x="14" y="82" width="4" height="10" fill="#c9a84c" rx="1"/>
+              <rect x="130" y="82" width="66" height="10" fill="#f5f5f0" rx="2"/>
+              <rect x="130" y="82" width="4" height="10" fill="#c9a84c" rx="1"/>
+              <rect x="14" y="97" width="110" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="14" y="103" width="95" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="14" y="115" width="115" height="10" fill="#f5f5f0" rx="2"/>
+              <rect x="14" y="115" width="4" height="10" fill="#c9a84c" rx="1"/>
+              <rect x="14" y="130" width="2" height="8" fill="#c9a84c"/>
+              <rect x="19" y="130" width="80" height="4" fill="#1a1a2e" rx="1"/>
+              <rect x="19" y="137" width="55" height="3" fill="#c9a84c" rx="1"/>
+              <rect x="130" y="97" width="65" height="3" fill="#6b6b6b" rx="1"/>
+              <rect x="130" y="104" width="65" height="3" fill="#ddd" rx="1"/>
+              <rect x="130" y="97" width="50" height="3" fill="#c9a84c" rx="1"/>
+              <rect x="130" y="112" width="65" height="3" fill="#6b6b6b" rx="1"/>
+              <rect x="130" y="119" width="65" height="3" fill="#ddd" rx="1"/>
+              <rect x="130" y="112" width="40" height="3" fill="#c9a84c" rx="1"/>
+            </svg>
+            <div class="template-meta">
+              <div class="template-name">Executive</div>
+              <div class="template-desc">Corporate · Noir &amp; Or · Premium</div>
+              <span class="template-badge badge-new">Nouveau</span>
+            </div>
+          </div>
+
+          <!-- Minimal -->
+          <div class="template-opt" onclick="selectTemplate('minimal',this)">
+            <svg class="template-preview" viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="297" fill="#fff"/>
+              <rect width="5" height="297" fill="#14b8a6"/>
+              <rect x="20" y="20" width="100" height="16" fill="#1e293b" rx="2"/>
+              <rect x="20" y="40" width="65" height="6" fill="#0f766e" rx="1"/>
+              <rect x="20" y="50" width="40" height="3" fill="#14b8a6" rx="1"/>
+              <rect x="140" y="20" width="55" height="4" fill="#94a3b8" rx="1"/>
+              <rect x="140" y="28" width="50" height="4" fill="#94a3b8" rx="1"/>
+              <rect x="140" y="36" width="55" height="4" fill="#94a3b8" rx="1"/>
+              <rect x="140" y="44" width="45" height="4" fill="#94a3b8" rx="1"/>
+              <rect x="20" y="62" width="185" height="1" fill="#f1f5f9"/>
+              <rect x="20" y="72" width="18" height="2" fill="#14b8a6" rx="1"/>
+              <rect x="40" y="70" width="55" height="4" fill="#0f766e" rx="1"/>
+              <rect x="20" y="80" width="110" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="20" y="86" width="95" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="20" y="98" width="18" height="2" fill="#14b8a6" rx="1"/>
+              <rect x="40" y="96" width="55" height="4" fill="#0f766e" rx="1"/>
+              <rect x="20" y="107" width="70" height="4" fill="#1e293b" rx="1"/>
+              <rect x="20" y="114" width="55" height="3" fill="#0f766e" rx="1"/>
+              <rect x="20" y="121" width="100" height="3" fill="#94a3b8" rx="1"/>
+              <rect x="140" y="72" width="18" height="2" fill="#14b8a6" rx="1"/>
+              <rect x="160" y="70" width="38" height="4" fill="#0f766e" rx="1"/>
+              <rect x="140" y="82" width="60" height="8" fill="#f1f5f9" rx="2"/>
+              <rect x="140" y="82" width="2" height="8" fill="#14b8a6" rx="1"/>
+              <rect x="140" y="93" width="60" height="8" fill="#f1f5f9" rx="2"/>
+              <rect x="140" y="93" width="2" height="8" fill="#14b8a6" rx="1"/>
+              <rect x="140" y="104" width="60" height="8" fill="#f1f5f9" rx="2"/>
+              <rect x="140" y="104" width="2" height="8" fill="#14b8a6" rx="1"/>
+            </svg>
+            <div class="template-meta">
+              <div class="template-name">Minimal</div>
+              <div class="template-desc">Ultra-épuré · Teal · Espace blanc</div>
+              <span class="template-badge badge-new">Nouveau</span>
+            </div>
+          </div>
+
+          <!-- Creative -->
+          <div class="template-opt" onclick="selectTemplate('creative',this)">
+            <svg class="template-preview" viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg">
+              <rect width="210" height="297" fill="#fff"/>
+              <defs><linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#4f46e5"/><stop offset="100%" style="stop-color:#7c3aed"/></linearGradient></defs>
+              <rect width="210" height="80" fill="url(#hg)"/>
+              <rect y="76" width="210" height="4" fill="#f97316"/>
+              <rect x="16" y="14" width="44" height="46" fill="rgba(255,255,255,0.15)" rx="3"/>
+              <rect x="70" y="16" width="95" height="14" fill="white" rx="2"/>
+              <rect x="70" y="34" width="60" height="6" fill="#f97316" rx="1"/>
+              <rect x="70" y="44" width="130" height="3" fill="rgba(255,255,255,0.6)" rx="1"/>
+              <rect x="70" y="51" width="110" height="3" fill="rgba(255,255,255,0.6)" rx="1"/>
+              <rect x="0" y="84" width="75" height="213" fill="#faf5ff"/>
+              <rect x="8" y="90" width="50" height="8" fill="#eef2ff" rx="2"/>
+              <rect x="8" y="90" width="4" height="8" fill="#f97316" rx="1"/>
+              <rect x="8" y="102" width="60" height="4" fill="#1e1b4b" rx="1"/>
+              <rect x="8" y="108" width="62" height="3" fill="#e5e7eb" rx="1"/>
+              <rect x="8" y="108" width="50" height="3" fill="#4f46e5" rx="1"/>
+              <rect x="8" y="115" width="55" height="4" fill="#1e1b4b" rx="1"/>
+              <rect x="8" y="121" width="62" height="3" fill="#e5e7eb" rx="1"/>
+              <rect x="8" y="121" width="44" height="3" fill="#4f46e5" rx="1"/>
+              <rect x="82" y="90" width="4" height="12" fill="#4f46e5"/>
+              <rect x="90" y="90" width="70" height="5" fill="#4f46e5" rx="1"/>
+              <rect x="82" y="104" width="115" height="1" fill="#eef2ff"/>
+              <rect x="82" y="110" width="8" height="8" fill="#f97316" rx="1"/>
+              <rect x="94" y="110" width="65" height="4" fill="#1e1b4b" rx="1"/>
+              <rect x="94" y="117" width="50" height="3" fill="#4f46e5" rx="1"/>
+              <rect x="82" y="130" width="8" height="8" fill="#f97316" rx="1"/>
+              <rect x="94" y="130" width="55" height="4" fill="#1e1b4b" rx="1"/>
+              <rect x="94" y="137" width="45" height="3" fill="#4f46e5" rx="1"/>
+            </svg>
+            <div class="template-meta">
+              <div class="template-name">Creative</div>
+              <div class="template-desc">Gradient indigo · Orange · Bold</div>
+              <span class="template-badge badge-new">Nouveau</span>
+            </div>
+          </div>
+        </div>
+        <p class="text-muted" style="text-align:center;padding:8px 0">Template sélectionné : <strong id="selectedTemplateName">Classic</strong></p>
+      </div>
+      <div class="bottom-nav">
+        <button class="btn btn-outline" onclick="goTo('extras')">← Retour</button>
+        <button class="btn btn-primary" onclick="goToNext('template')">Suivant : Générer →</button>
+      </div>
+    </div>
+
+    <!-- ═══ GÉNÉRER ═══ -->
+    <div class="section-block" id="section-generate">
+      <div class="section-header">
+        <div class="step-indicator"><div class="step-num">7</div>Étape 7 / 7</div>
+        <div class="section-title">Générer ton CV</div>
+        <div class="section-subtitle">Vérifie le résumé et génère ton PDF professionnel.</div>
+      </div>
+      <div class="cv-summary">
+        <div class="cv-summary-item">
+          <div class="val" id="summaryExp">0</div>
+          <div class="lbl">Expériences</div>
+        </div>
+        <div class="cv-summary-item">
+          <div class="val" id="summarySkills">0</div>
+          <div class="lbl">Compétences</div>
+        </div>
+        <div class="cv-summary-item">
+          <div class="val" id="summaryEdu">0</div>
+          <div class="lbl">Formations</div>
+        </div>
+      </div>
+      <!-- Gate de paiement (visible par défaut) -->
+      <div class="payment-gate" id="paymentGate">
+        <div class="payment-gate-icon">🔒</div>
+        <div class="payment-gate-title">Accès unique à 1 000 F CFA</div>
+        <div class="payment-gate-desc">
+          Génère ton CV professionnel en PDF haute qualité.<br>
+          Paiement sécurisé via Chariow · Mobile Money &amp; carte bancaire acceptés.
+        </div>
+        <div class="payment-features">
+          <span class="payment-feat">✅ PDF haute qualité</span>
+          <span class="payment-feat">✅ 5 templates au choix</span>
+          <span class="payment-feat">✅ Photo intégrée</span>
+          <span class="payment-feat">✅ Téléchargement instantané</span>
+        </div>
+        <div class="payment-price-badge">
+          <span class="price-currency">F CFA</span>
+          <span>1 000</span>
+        </div><br>
+        <div class="payment-error" id="paymentError"></div>
+        <div class="payment-verifying" id="paymentVerifying">
+          <div class="spinner"></div>
+          <span>Vérification du paiement en cours...</span>
+        </div>
+        <button class="payment-btn" id="payBtn" onclick="startPayment()">
+          💳 Payer et générer mon CV
+        </button>
+        <div style="margin-top:16px;font-size:12px;color:var(--text-muted)">
+          Déjà payé ? <a href="#" style="color:var(--primary);font-weight:600" onclick="showManualEntry();return false">Entrer mon identifiant de vente</a>
+        </div>
+        <div id="manualEntry" style="display:none;margin-top:16px">
+          <div style="display:flex;gap:8px;max-width:420px;margin:0 auto">
+            <input type="text" id="manualSaleId" placeholder="sal_xxxxx" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px">
+            <button class="btn btn-primary" onclick="verifyManualSaleId()">Vérifier</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badge paiement validé (visible après paiement) -->
+      <div class="payment-unlocked-badge" id="paymentUnlockedBadge">
+        ✅ Paiement confirmé — Tu peux générer ton CV
+        <button onclick="clearPaymentToken()" style="margin-left:auto;background:none;border:none;color:#065f46;cursor:pointer;font-size:12px;text-decoration:underline">Nouveau paiement</button>
+      </div>
+
+      <!-- Hero de génération (caché jusqu'au paiement) -->
+      <div class="generate-hero" id="generateHero" style="display:none">
+        <h2>✨ Prêt à générer ton CV ?</h2>
+        <p>Template <strong id="heroTemplate">Classic</strong> sélectionné · PDF A4 haute qualité</p>
+        <button class="generate-btn-main" id="generateBtn" onclick="generate()">🚀 Générer mon CV PDF</button>
+      </div>
+      <div class="progress-card" id="progressCard">
+        <div class="progress-step-label">
+          <div class="step-dot"></div>
+          <span id="stepLabel">Initialisation...</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-pct" id="progressPct">0%</div>
+      </div>
+      <div class="success-card" id="successCard">
+        <div class="success-icon">✅</div>
+        <div class="success-title">CV généré avec succès !</div>
+        <div class="success-sub">Ton CV professionnel est prêt au téléchargement.</div>
+        <div class="success-actions">
+          <button class="btn btn-success" id="downloadBtn">⬇ Télécharger le PDF</button>
+          <button class="btn btn-outline" onclick="resetGenerate()">🔄 Modifier</button>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <button class="btn btn-outline" onclick="goTo('template')">← Retour</button>
+        <div></div>
+      </div>
+    </div>
+
+  </main>
 </div>
 
 <script>
-let selectedTemplate = 'classic';
-let photoBase64 = '';
-let expCount = 0;
-let eduCount = 0;
+let selectedTemplate='classic',photoBase64='',expCount=0,eduCount=0;
+let skills=[],languages=[],certifications=[];
+let completedSections=new Set();
+const SECTIONS=['profil','competences','experience','formation','extras','template','generate'];
 
-// ── Template selection ───────────────────────────
-function selectTemplate(name, el) {
-  selectedTemplate = name;
-  document.querySelectorAll('.template-opt').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
+function goTo(id,el){
+  document.querySelectorAll('.section-block').forEach(s=>s.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  else{const e=document.querySelector('[data-section="'+id+'"]');if(e)e.classList.add('active');}
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='generate')updateGenerateSummary();
 }
 
-// ── Photo handling ───────────────────────────────
-function handlePhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const result = e.target.result;
-    photoBase64 = result.split(',')[1]; // enlever "data:image/jpeg;base64,"
-    const preview = document.getElementById('photoPreview');
-    preview.src = result;
-    preview.style.display = 'block';
-    document.getElementById('photoText').textContent = file.name;
+function goToNext(cur){
+  completedSections.add(cur);
+  const el=document.querySelector('[data-section="'+cur+'"]');
+  if(el)el.classList.add('done');
+  const idx=SECTIONS.indexOf(cur);
+  if(idx<SECTIONS.length-1)goTo(SECTIONS[idx+1]);
+}
+
+function updateProgress(){
+  const pct=Math.round((completedSections.size/(SECTIONS.length-1))*100);
+  document.getElementById('progressFillSide').style.width=pct+'%';
+  document.getElementById('progressPctSide').textContent=pct+'%';
+}
+
+function handlePhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const r=e.target.result;
+    photoBase64=r.split(',')[1];
+    const img=document.getElementById('photoPreviewImg');
+    img.src=r;img.style.display='block';
+    document.getElementById('photoPlaceholder').style.display='none';
   };
   reader.readAsDataURL(file);
 }
 
-// ── Ajouter experience ───────────────────────────
-function addExperience() {
-  const id = expCount++;
-  const div = document.createElement('div');
-  div.className = 'exp-item';
-  div.id = 'exp-' + id;
-  div.innerHTML = `
-    <button class="remove-btn" onclick="removeItem('exp-${id}')">x</button>
+function handleTagInput(event,type){
+  const input=event.target,val=input.value.trim();
+  if((event.key==='Enter'||event.key===',')&&val){
+    event.preventDefault();
+    const tag=val.replace(/,$/,'').trim();if(!tag)return;
+    if(type==='skills'&&!skills.includes(tag)){skills.push(tag);renderTags('skills');}
+    else if(type==='languages'&&!languages.includes(tag)){languages.push(tag);renderTags('languages');}
+    else if(type==='certifications'&&!certifications.includes(tag)){certifications.push(tag);renderTags('certifications');}
+    input.value='';
+  }
+  if(event.key==='Backspace'&&!input.value){
+    if(type==='skills'&&skills.length){skills.pop();renderTags('skills');}
+    else if(type==='languages'&&languages.length){languages.pop();renderTags('languages');}
+    else if(type==='certifications'&&certifications.length){certifications.pop();renderTags('certifications');}
+  }
+}
+
+function removeTag(type,tag){
+  if(type==='skills')skills=skills.filter(s=>s!==tag);
+  else if(type==='languages')languages=languages.filter(s=>s!==tag);
+  else if(type==='certifications')certifications=certifications.filter(s=>s!==tag);
+  renderTags(type);
+}
+
+function renderTags(type){
+  const cfg={
+    skills:{c:'skillsTagsContainer',i:'skillInput',d:skills},
+    languages:{c:'langsTagsContainer',i:'langInput',d:languages},
+    certifications:{c:'certsTagsContainer',i:'certInput',d:certifications}
+  };
+  const{c,i,d}=cfg[type];
+  const el=document.getElementById(c),inp=document.getElementById(i);
+  [...el.querySelectorAll('.tag')].forEach(t=>t.remove());
+  d.forEach(tag=>{
+    const span=document.createElement('span');
+    span.className='tag';
+    span.innerHTML=tag+'<button class="tag-remove" onclick="removeTag(\''+type+'\',\''+tag.replace(/'/g,"\\'")+'\')" type="button">×</button>';
+    el.insertBefore(span,inp);
+  });
+}
+
+function addExperience(){
+  const id=expCount++,num=document.querySelectorAll('.exp-item').length+1;
+  const div=document.createElement('div');
+  div.className='entry-item exp-item';div.id='exp-'+id;
+  div.innerHTML=`
+    <div class="entry-item-header">
+      <span class="entry-item-num">Expérience #${num}</span>
+      <button class="entry-remove-btn" onclick="removeItem('exp-${id}')">×</button>
+    </div>
     <div class="grid2">
-      <div class="field"><label>Entreprise</label>
-        <input type="text" class="exp-company" placeholder="FAKODROP"></div>
-      <div class="field"><label>Poste</label>
-        <input type="text" class="exp-position" placeholder="Lead Engineer"></div>
-      <div class="field"><label>Debut</label>
-        <input type="text" class="exp-start" placeholder="2022"></div>
-      <div class="field"><label>Fin (vide = present)</label>
-        <input type="text" class="exp-end" placeholder="2024"></div>
+      <div class="field"><div class="field-label">Entreprise</div><input type="text" class="exp-company" placeholder="FAKODROP"></div>
+      <div class="field"><div class="field-label">Poste / Rôle</div><input type="text" class="exp-position" placeholder="Lead Engineer"></div>
+      <div class="field"><div class="field-label">Date début</div><input type="text" class="exp-start" placeholder="Jan 2022"></div>
+      <div class="field"><div class="field-label">Date fin <span class="optional">vide = présent</span></div><input type="text" class="exp-end" placeholder="Déc 2024"></div>
     </div>
-    <div class="field"><label>Description</label>
-      <textarea class="exp-desc" placeholder="Principales responsabilites..."></textarea>
-    </div>
-  `;
+    <div class="field mt-4">
+      <div class="field-label">Description & réalisations</div>
+      <textarea class="exp-desc" placeholder="• Développement d'une API scalable servant 100k+ req/jour&#10;• Réduction du temps de déploiement de 40% via CI/CD..."></textarea>
+    </div>`;
   document.getElementById('experiencesList').appendChild(div);
 }
 
-// ── Ajouter formation ────────────────────────────
-function addEducation() {
-  const id = eduCount++;
-  const div = document.createElement('div');
-  div.className = 'exp-item';
-  div.id = 'edu-' + id;
-  div.innerHTML = `
-    <button class="remove-btn" onclick="removeItem('edu-${id}')">x</button>
-    <div class="grid2">
-      <div class="field"><label>Ecole</label>
-        <input type="text" class="edu-school" placeholder="Universite Felix Houphouet-Boigny"></div>
-      <div class="field"><label>Diplome</label>
-        <input type="text" class="edu-degree" placeholder="Ingenierie Informatique"></div>
-      <div class="field"><label>Annee</label>
-        <input type="number" class="edu-year" placeholder="2021"></div>
+function addEducation(){
+  const id=eduCount++,num=document.querySelectorAll('.edu-item').length+1;
+  const div=document.createElement('div');
+  div.className='entry-item edu-item';div.id='edu-'+id;
+  div.innerHTML=`
+    <div class="entry-item-header">
+      <span class="entry-item-num">Formation #${num}</span>
+      <button class="entry-remove-btn" onclick="removeItem('edu-${id}')">×</button>
     </div>
-  `;
+    <div class="grid3">
+      <div class="field"><div class="field-label">École</div><input type="text" class="edu-school" placeholder="INPHB · Yamoussoukro"></div>
+      <div class="field"><div class="field-label">Diplôme</div><input type="text" class="edu-degree" placeholder="Ingénierie Informatique"></div>
+      <div class="field"><div class="field-label">Année</div><input type="number" class="edu-year" placeholder="2021"></div>
+    </div>`;
   document.getElementById('educationList').appendChild(div);
 }
 
-function removeItem(id) {
-  document.getElementById(id).remove();
+function removeItem(id){document.getElementById(id)?.remove();}
+
+function selectTemplate(name,el){
+  selectedTemplate=name;
+  document.querySelectorAll('.template-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels={classic:'Classic',modern:'Modern',executive:'Executive',minimal:'Minimal',creative:'Creative'};
+  document.getElementById('selectedTemplateName').textContent=labels[name]||name;
+  if(document.getElementById('heroTemplate'))document.getElementById('heroTemplate').textContent=labels[name]||name;
 }
 
-// ── Collecter les experiences ────────────────────
-function getExperiences() {
-  return [...document.querySelectorAll('.exp-item[id^="exp-"]')].map(el => ({
-    company:     el.querySelector('.exp-company').value,
-    position:    el.querySelector('.exp-position').value,
-    start_date:  el.querySelector('.exp-start').value,
-    end_date:    el.querySelector('.exp-end').value,
-    description: el.querySelector('.exp-desc').value,
-  })).filter(e => e.company || e.position);
+function updateGenerateSummary(){
+  document.getElementById('summaryExp').textContent=document.querySelectorAll('.exp-item').length;
+  document.getElementById('summarySkills').textContent=skills.length;
+  document.getElementById('summaryEdu').textContent=document.querySelectorAll('.edu-item').length;
+  const labels={classic:'Classic',modern:'Modern',executive:'Executive',minimal:'Minimal',creative:'Creative'};
+  document.getElementById('heroTemplate').textContent=labels[selectedTemplate]||selectedTemplate;
 }
 
-// ── Collecter les formations ─────────────────────
-function getEducation() {
-  return [...document.querySelectorAll('.exp-item[id^="edu-"]')].map(el => ({
-    school: el.querySelector('.edu-school').value,
-    degree: el.querySelector('.edu-degree').value,
-    year:   parseInt(el.querySelector('.edu-year').value) || 0,
-  })).filter(e => e.school || e.degree);
+function getExperiences(){
+  return[...document.querySelectorAll('.exp-item')].map(el=>({
+    company:el.querySelector('.exp-company')?.value||'',
+    position:el.querySelector('.exp-position')?.value||'',
+    start_date:el.querySelector('.exp-start')?.value||'',
+    end_date:el.querySelector('.exp-end')?.value||'',
+    description:el.querySelector('.exp-desc')?.value||''
+  })).filter(e=>e.company||e.position);
 }
 
-// ── Generer le CV via SSE ────────────────────────
-async function generate() {
-  const fullName = document.getElementById('fullName').value.trim();
-  const email    = document.getElementById('email').value.trim();
-  if (!fullName || !email) {
-    alert('Nom et email obligatoires.');
+function getEducation(){
+  return[...document.querySelectorAll('.edu-item')].map(el=>({
+    school:el.querySelector('.edu-school')?.value||'',
+    degree:el.querySelector('.edu-degree')?.value||'',
+    year:parseInt(el.querySelector('.edu-year')?.value)||0
+  })).filter(e=>e.school||e.degree);
+}
+
+// ════════════════════════════════
+// PAIEMENT CHARIOW
+// ════════════════════════════════
+const CHARIOW_CHECKOUT='https://ixiwxlcy.mychariow.shop/checkout/prd_4cjim0';
+
+function startPayment(){
+  // Sauvegarder les données du formulaire en sessionStorage avant redirection
+  saveFormState();
+  // Rediriger vers Chariow avec l'URL de retour
+  const returnUrl=encodeURIComponent(window.location.origin+'/?sale_id={sale_id}');
+  window.location.href=CHARIOW_CHECKOUT;
+}
+
+function showManualEntry(){
+  document.getElementById('manualEntry').style.display='block';
+  document.getElementById('manualSaleId').focus();
+}
+
+async function verifyManualSaleId(){
+  const saleId=document.getElementById('manualSaleId').value.trim();
+  if(!saleId){return;}
+  await verifyAndUnlock(saleId);
+}
+
+async function verifyAndUnlock(saleId){
+  const errEl=document.getElementById('paymentError');
+  const verifEl=document.getElementById('paymentVerifying');
+  const payBtn=document.getElementById('payBtn');
+  errEl.classList.remove('visible');
+  verifEl.classList.add('visible');
+  if(payBtn)payBtn.disabled=true;
+  try{
+    const resp=await fetch('/api/verify-payment',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sale_id:saleId})
+    });
+    const data=await resp.json();
+    if(data.token){
+      sessionStorage.setItem('cv_payment_token',data.token);
+      showUnlockedState(data.message);
+      // Nettoyer l'URL (supprimer ?sale_id=...)
+      window.history.replaceState({},'',window.location.pathname);
+    } else {
+      errEl.textContent='❌ '+(data.error||'Paiement non vérifié');
+      errEl.classList.add('visible');
+    }
+  } catch(e){
+    errEl.textContent='❌ Erreur réseau : '+e.message;
+    errEl.classList.add('visible');
+  } finally {
+    verifEl.classList.remove('visible');
+    if(payBtn)payBtn.disabled=false;
+  }
+}
+
+function showUnlockedState(msg){
+  document.getElementById('paymentGate').style.display='none';
+  const badge=document.getElementById('paymentUnlockedBadge');
+  badge.classList.add('visible');
+  if(msg){badge.querySelector('span')||badge.insertAdjacentHTML('afterbegin','<span>'+msg+'</span>');}
+  document.getElementById('generateHero').style.display='block';
+}
+
+function clearPaymentToken(){
+  sessionStorage.removeItem('cv_payment_token');
+  document.getElementById('paymentGate').style.display='block';
+  document.getElementById('paymentUnlockedBadge').classList.remove('visible');
+  document.getElementById('generateHero').style.display='none';
+}
+
+function initPaymentFlow(){
+  // Déjà un token valide en session ?
+  const token=sessionStorage.getItem('cv_payment_token');
+  if(token){showUnlockedState();return;}
+  // Retour depuis Chariow avec ?sale_id=xxx
+  const params=new URLSearchParams(window.location.search);
+  const saleId=params.get('sale_id');
+  if(saleId){
+    // Aller directement sur la section generate
+    goTo('generate');
+    verifyAndUnlock(saleId);
+  }
+}
+
+function saveFormState(){
+  try{
+    const state={
+      fullName:document.getElementById('fullName').value,
+      email:document.getElementById('email').value,
+      phone:document.getElementById('phone').value,
+      location:document.getElementById('location').value,
+      summary:document.getElementById('summary').value,
+      jobTitle:document.getElementById('jobTitle').value,
+      linkedin:document.getElementById('linkedin').value,
+      github:document.getElementById('github').value,
+      website:document.getElementById('website').value,
+      skills,languages,certifications,
+      selectedTemplate
+    };
+    sessionStorage.setItem('cv_form_state',JSON.stringify(state));
+  }catch(e){console.warn('saveFormState:',e);}
+}
+
+function restoreFormState(){
+  try{
+    const raw=sessionStorage.getItem('cv_form_state');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    ['fullName','email','phone','location','summary','jobTitle','linkedin','github','website'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&s[id])el.value=s[id];
+    });
+    if(s.skills){skills=s.skills;renderTags('skills');}
+    if(s.languages){languages=s.languages;renderTags('languages');}
+    if(s.certifications){certifications=s.certifications;renderTags('certifications');}
+    if(s.selectedTemplate){
+      selectedTemplate=s.selectedTemplate;
+      const opt=document.querySelector('[onclick*="\''+s.selectedTemplate+'\'"]');
+      if(opt)opt.classList.add('selected');
+    }
+  }catch(e){console.warn('restoreFormState:',e);}
+}
+
+// ════════════════════════════════
+// GÉNÉRATION CV
+// ════════════════════════════════
+async function generate(){
+  const fullName=document.getElementById('fullName').value.trim();
+  const email=document.getElementById('email').value.trim();
+  if(!fullName||!email){alert('⚠️ Nom complet et email sont obligatoires.');goTo('profil');return;}
+
+  // Vérifier le token de paiement
+  const paymentToken=sessionStorage.getItem('cv_payment_token');
+  if(!paymentToken){
+    alert('⚠️ Paiement requis pour générer un CV.');
+    clearPaymentToken();
     return;
   }
 
-  const btn = document.getElementById('generateBtn');
-  btn.disabled = true;
-  btn.textContent = 'Generation en cours...';
-
-  // Afficher la progress bar
+  const btn=document.getElementById('generateBtn');
+  btn.disabled=true;btn.textContent='⏳ Génération en cours...';
   document.getElementById('progressCard').classList.add('visible');
   document.getElementById('successCard').classList.remove('visible');
-
-  const body = {
-    full_name:   fullName,
-    email:       email,
-    phone:       document.getElementById('phone').value,
-    location:    document.getElementById('location').value,
-    summary:     document.getElementById('summary').value,
-    skills:      document.getElementById('skills').value.split(',').map(s => s.trim()).filter(Boolean),
-    experiences: getExperiences(),
-    education:   getEducation(),
-    template:    selectedTemplate,
-    photo:       photoBase64,
+  const body={
+    full_name:fullName,email,
+    phone:document.getElementById('phone').value,
+    location:document.getElementById('location').value,
+    summary:document.getElementById('summary').value,
+    job_title:document.getElementById('jobTitle').value,
+    linkedin:document.getElementById('linkedin').value,
+    github:document.getElementById('github').value,
+    website:document.getElementById('website').value,
+    skills,languages,certifications,
+    experiences:getExperiences(),education:getEducation(),
+    template:selectedTemplate,photo:photoBase64
   };
-
-  try {
-    const response = await fetch('/api/stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+  try{
+    const response=await fetch('/api/v2/stream',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'X-Payment-Token':paymentToken
+      },
+      body:JSON.stringify(body)
     });
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n\n');
-      buffer = lines.pop();
-
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const data = JSON.parse(line.slice(6));
-
-        // Mettre a jour la progression
-        document.getElementById('stepLabel').textContent = data.step || '';
-        document.getElementById('progressFill').style.width = (data.percent || 0) + '%';
-        document.getElementById('progressPct').textContent = (data.percent || 0) + '%';
-
-        // PDF final disponible
-        if (data.done && data.pdf) {
-          const pdfBytes = Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0));
-          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-          const url = URL.createObjectURL(blob);
-
-          const dlBtn = document.getElementById('downloadBtn');
-          dlBtn.onclick = () => {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fullName.toLowerCase().replace(/ /g, '-') + '-cv.pdf';
-            a.click();
+    if(!response.ok)throw new Error('Erreur serveur: '+response.status);
+    const reader=response.body.getReader();
+    const decoder=new TextDecoder();
+    let buffer='';
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      buffer+=decoder.decode(value,{stream:true});
+      const lines=buffer.split('\n\n');buffer=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        let data;try{data=JSON.parse(line.slice(6));}catch{continue;}
+        document.getElementById('stepLabel').textContent=data.step||'';
+        const pct=data.percent||0;
+        document.getElementById('progressFill').style.width=pct+'%';
+        document.getElementById('progressPct').textContent=pct+'%';
+        if(data.done&&data.pdf){
+          const pdfBytes=Uint8Array.from(atob(data.pdf),c=>c.charCodeAt(0));
+          const blob=new Blob([pdfBytes],{type:'application/pdf'});
+          const url=URL.createObjectURL(blob);
+          const filename=fullName.toLowerCase().replace(/\s+/g,'-')+'-cv.pdf';
+          document.getElementById('downloadBtn').onclick=()=>{
+            const a=document.createElement('a');a.href=url;a.download=filename;a.click();
           };
-
           document.getElementById('successCard').classList.add('visible');
+          document.getElementById('progressCard').classList.remove('visible');
+          completedSections.add('generate');updateProgress();
+          // Invalider le token après génération réussie (paiement unique)
+          sessionStorage.removeItem('cv_payment_token');
+          sessionStorage.removeItem('cv_form_state');
+        }
+        if(data.done&&!data.pdf&&data.step){
+          if(data.step.startsWith('Erreur')){
+            alert('❌ '+data.step);
+            // Si token expiré, réinitialiser le gate
+            if(data.step.includes('Token')||data.step.includes('Paiement')){clearPaymentToken();}
+          }
         }
       }
     }
-  } catch (err) {
-    alert('Erreur: ' + err.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Generer mon CV';
-  }
+  }catch(err){alert('❌ Erreur: '+err.message);}
+  finally{btn.disabled=false;btn.innerHTML='🚀 Générer mon CV PDF';}
 }
+
+function resetGenerate(){
+  document.getElementById('successCard').classList.remove('visible');
+  document.getElementById('progressCard').classList.remove('visible');
+  document.getElementById('progressFill').style.width='0%';
+  document.getElementById('progressPct').textContent='0%';
+}
+
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded',function(){
+  restoreFormState();
+  initPaymentFlow();
+});
 </script>
 </body>
 </html>
