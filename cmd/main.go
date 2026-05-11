@@ -53,8 +53,9 @@ func main() {
 	// Route v2 — direct, extended model, no gRPC overhead
 	mux.HandleFunc("/api/v2/stream", h.withCORS(h.StreamExtended))
 
-	// Route paiement — vérification Chariow + émission token
-	mux.HandleFunc("/api/verify-payment", h.withCORS(h.VerifyPayment))
+	// Routes paiement Chariow
+	mux.HandleFunc("/api/create-checkout", h.withCORS(h.CreateCheckout)) // Crée session avec redirect_url
+	mux.HandleFunc("/api/verify-payment", h.withCORS(h.VerifyPayment))   // Vérifie sale_id + émet token
 
 	// ── 4. Démarrer le gateway HTTP ───────────────────────
 	// Utilise $PORT si défini (Render, Railway, etc.), sinon 8080

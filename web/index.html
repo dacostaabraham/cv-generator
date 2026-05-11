@@ -846,12 +846,45 @@ function getEducation(){
 // ════════════════════════════════
 const CHARIOW_CHECKOUT='https://ixiwxlcy.mychariow.shop/prd_4cjim0';
 
-function startPayment(){
-  // Sauvegarder les données du formulaire en sessionStorage avant redirection
+async function startPayment(){
   saveFormState();
-  // Rediriger vers Chariow avec l'URL de retour
-  const returnUrl=encodeURIComponent(window.location.origin+'/?sale_id={sale_id}');
-  window.location.href=CHARIOW_CHECKOUT;
+
+  // Récupérer les infos du formulaire pour la session Chariow
+  const email     = (document.getElementById('email')    ||{}).value||'';
+  const fullName  = (document.getElementById('full_name')||{}).value||'';
+  const phone     = (document.getElementById('phone')    ||{}).value||'';
+  const parts     = fullName.trim().split(/\s+/);
+  const firstName = parts[0]||'';
+  const lastName  = parts.slice(1).join(' ')||'';
+
+  const payBtn = document.getElementById('payBtn');
+  if(payBtn){ payBtn.disabled=true; payBtn.textContent='Chargement...'; }
+
+  try {
+    const resp = await fetch('/api/create-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email, first_name:firstName, last_name:lastName, phone})
+    });
+    const data = await resp.json();
+
+    if(data.checkout_url){
+      // ✅ Rediriger vers l'URL de paiement Chariow (avec redirect_url intégré)
+      window.location.href = data.checkout_url;
+    } else {
+      // Fallback : ouvrir la page produit + afficher entrée manuelle
+      window.open(CHARIOW_CHECKOUT,'_blank');
+      showManualEntry();
+      const errEl=document.getElementById('paymentError');
+      if(errEl){ errEl.textContent='ℹ️ Payez sur la page qui s\'est ouverte, puis entrez votre ID de vente ci-dessous.'; errEl.classList.add('visible'); }
+    }
+  } catch(e){
+    // Fallback réseau
+    window.open(CHARIOW_CHECKOUT,'_blank');
+    showManualEntry();
+  } finally {
+    if(payBtn){ payBtn.disabled=false; payBtn.textContent='💳 Payer 1 000 F CFA'; }
+  }
 }
 
 function showManualEntry(){
